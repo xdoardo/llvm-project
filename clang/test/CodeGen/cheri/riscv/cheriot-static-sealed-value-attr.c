@@ -16,10 +16,10 @@ typedef int SealedInt __attribute((cheriot_sealed("MyCompartment", "MyKeyName"))
 //
 // CHECK: @__export.sealing_type.MyCompartment.MyKeyName = external dso_local addrspace(200) global i32, align 4
 //
-// CHECK: @Obj1 = linkonce_odr dso_local addrspace(200) global %struct.__Sealed_SealedStructObj { i32 ptrtoint (ptr addrspace(200) @__export.sealing_type.MyCompartment.MyKeyName to i32), i32 0, %struct.SealedStructObj { i32 10 } }, section ".sealed_objects", comdat, align 4 #0
+// CHECK: @Obj1 = linkonce_odr dso_local addrspace(200) global %struct.__Sealed_SealedStructObj { i32 ptrtoint (ptr addrspace(200) @__export.sealing_type.MyCompartment.MyKeyName to i32), i32 0, %struct.SealedStructObj { i32 10 } }, section ".sealed_objects", comdat, align 1 #0
 struct SealedStructObj Obj1 = {10};
 
-// CHECK: @Obj2 = linkonce_odr dso_local addrspace(200) global %struct.__Sealed_SealedInt { i32 ptrtoint (ptr addrspace(200) @__export.sealing_type.MyCompartment.MyKeyName to i32), i32 0, i32 10 }, section ".sealed_objects", comdat, align 4 #0
+// CHECK: @Obj2 = linkonce_odr dso_local addrspace(200) global %struct.__Sealed_SealedInt { i32 ptrtoint (ptr addrspace(200) @__export.sealing_type.MyCompartment.MyKeyName to i32), i32 0, i32 10 }, section ".sealed_objects", comdat, align 1 #0
 SealedInt Obj2 = 10;
 
 // CHECK: @llvm.compiler.used = appending addrspace(200) global [2 x ptr addrspace(200)] [ptr addrspace(200) @Obj1, ptr addrspace(200) @Obj2], section "llvm.metadata"
@@ -40,3 +40,5 @@ void func() {
 
 // CHECK: declare void @doSomething(ptr addrspace(200) noundef) local_unnamed_addr addrspace(200) #2
 // CHECK: declare void @doSomething2(ptr addrspace(200) noundef) local_unnamed_addr addrspace(200) #2
+//
+// CHECK attributes #0 = { "cheriot_sealed_value"="4" }

@@ -363,8 +363,23 @@ void AddrLabelMapCallbackPtr::allUsesReplacedWith(Value *V2) {
 Align AsmPrinter::getGVAlignment(const GlobalObject *GV, const DataLayout &DL,
                                  Align InAlign) {
   Align Alignment;
-  if (const GlobalVariable *GVar = dyn_cast<GlobalVariable>(GV))
+  if (const GlobalVariable *GVar = dyn_cast<GlobalVariable>(GV)) {
+    // CHERIoT-specific check: if the global is a sealed capability, we need to
+    // set its alignment at the level of the LLVM IR to 1 so that logical
+    // operations on the address aren't optimised away, because the CHERIoT RTOS
+    // will store permissions in the lower parts of the address.
+    //
+    // We need to restore the correct alignment before emitting the global
+    // value.
+    auto CheriotSealedValueAttrName =
+        llvm::CHERIoTSealedValueAttr::getAttrName();
+    if (GVar->hasAttribute(CheriotSealedValueAttrName)) {
+      auto Attr = GVar->getAttribute(CheriotSealedValueAttrName);
+      return llvm::Align(std::stoi(Attr.getValueAsString().str()));
+    }
+
     Alignment = DL.getPreferredAlign(GVar);
+  }
 
   // If InAlign is specified, round it to it.
   if (InAlign > Alignment)

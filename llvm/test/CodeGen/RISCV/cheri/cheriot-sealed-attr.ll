@@ -59,7 +59,10 @@ $__default_malloc_capability = comdat any
 ;; CHECK-NEXT: 	.word	0                               # 0x0
 ;; CHECK-NEXT: 	.word	42                              # 0x2a
 ;; CHECK-NEXT: 	.size	test, 12
-@test = linkonce_odr dso_local addrspace(200) global %struct.SealedTestType { i32 ptrtoint (ptr addrspace(200) @__export.sealing_type.static_sealing_inner.SealingType to i32), i32 0, %struct.TestType {i32 42}}, section ".sealed_objects", comdat, align 4 "cheriot_sealed_value"
+@test = linkonce_odr dso_local addrspace(200) global %struct.SealedTestType {
+i32 ptrtoint (ptr addrspace(200)
+@__export.sealing_type.static_sealing_inner.SealingType to i32), i32 0,
+%struct.TestType {i32 42}}, section ".sealed_objects", comdat, align 1 "cheriot_sealed_value" = "4"
 ;; CHECK: 	.type	__default_malloc_capability,@object                    # @__default_malloc_capability
 ;; CHECK-NEXT: 	.section	.sealed_objects,"awG",@progbits,__default_malloc_capability,comdat
 ;; CHECK-NEXT: 	.weak	__default_malloc_capability
@@ -75,7 +78,7 @@ $__default_malloc_capability = comdat any
 %struct.SealedAllocatorCapabilityState { i32 ptrtoint (ptr
 addrspace(200) @__export.sealing_type.allocator.MallocKey to i32), i32 0,
 %struct.AllocatorCapabilityState { i32 1048576, i32 0, [2 x ptr addrspace(200)]
-zeroinitializer } }, section ".sealed_objects", comdat, align 8 "cheriot_sealed_value"
+zeroinitializer } }, section ".sealed_objects", comdat, align 1 "cheriot_sealed_value" = "8"
 
 @llvm.compiler.used = appending addrspace(200) global [2 x ptr addrspace(200)] [ptr addrspace(200) @test, ptr addrspace(200) @__default_malloc_capability], section "llvm.metadata"
 

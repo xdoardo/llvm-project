@@ -6020,10 +6020,22 @@ void CodeGenModule::EmitGlobalVarDefinition(const VarDecl *D,
     GV->setSection(".sealed_objects");
     GV->setDSOLocal(true);
     GV->setLinkage(llvm::GlobalValue::LinkOnceODRLinkage);
-    GV->setAlignment(getContext().getDeclAlign(D).getAsAlign());
     GV->setComdat(C);
     GV->setInitializer(Init);
-    GV->addAttribute(llvm::CHERIoTSealedValueAttr::getAttrName());
+
+    // The CHERIoT RTOS will use the lower bits of the address to store the
+    // permissions of the sealed capability. We set the alignment to 1 so that
+    // logical operations on >1-aligned values aren't optimised to 0 by the
+    // middle-end.
+    GV->setAlignment(llvm::Align(1));
+
+    // We also save the real alignment in the attribute that tells LLVM
+    // that this value is a sealed capability, so that we can restore it when
+    // generating the ASM.
+    std::string TypeAlignmentValue =
+        std::to_string(getContext().getDeclAlign(D).getAsAlign().value());
+    GV->addAttribute(llvm::CHERIoTSealedValueAttr::getAttrName(),
+                     TypeAlignmentValue);
 
     addCompilerUsedGlobal(GV);
 
