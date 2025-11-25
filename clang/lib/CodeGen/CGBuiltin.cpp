@@ -6030,7 +6030,8 @@ RValue CodeGenFunction::EmitBuiltinExpr(const GlobalDecl GD, unsigned BuiltinID,
     const auto *Arg = E->getArg(0);
     auto *RArg = EmitScalarExpr(Arg);
     if (Arg->getType()->isCHERISealedCapabilityType(getContext()))
-      RArg = Builder.CreateLaunderInvariantGroup(RArg);
+      RArg = Builder.CreateIntrinsic(llvm::Intrinsic::launder_alignment,
+                                     {UnqualPtrTy}, {RArg});
     return RValue::get(Builder.CreateIntrinsic(
         llvm::Intrinsic::cheri_cap_address_get, {IntPtrTy}, {RArg}));
   }

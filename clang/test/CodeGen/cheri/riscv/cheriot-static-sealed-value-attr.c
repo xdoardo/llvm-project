@@ -40,7 +40,7 @@ void func() {
 // This is because the CHERIoT RTOS uses the lower bits of the address to store the permissions of the sealed capability, and KnownBits can in turn 
 // optimise away logical computations on lower parts of the address.
 
-// CHECK:  %0 = tail call ptr addrspace(200) @llvm.launder.invariant.group.p200(ptr addrspace(200) nonnull @Obj1)
+// CHECK:  %0 = tail call ptr addrspace(200) @llvm.launder.alignment.p200(ptr addrspace(200) nonnull @Obj1)
 // CHECK:  %1 = tail call i32 @llvm.cheri.cap.address.get.i32(ptr addrspace(200) nonnull %0)
 // CHECK:  tail call void @doSomethingWithAddr(i32 noundef %1) #5
   doSomethingWithAddr(__builtin_cheri_address_get(&Obj1));
@@ -51,6 +51,6 @@ void func() {
 
 // CHECK: declare void @doSomething(ptr addrspace(200) noundef) local_unnamed_addr addrspace(200) #2
 // CHECK: declare void @doSomethingWithAddr(i32 noundef) local_unnamed_addr addrspace(200) #2
-// CHECK: declare ptr addrspace(200) @llvm.launder.invariant.group.p200(ptr addrspace(200)) addrspace(200) #3
+// CHECK: declare ptr addrspace(200) @llvm.launder.alignment.p200(ptr addrspace(200)) addrspace(200) #3
 // CHECK: declare i32 @llvm.cheri.cap.address.get.i32(ptr addrspace(200)) addrspace(200) #4
 // CHECK: declare void @doSomething2(ptr addrspace(200) noundef) local_unnamed_addr addrspace(200) #2
