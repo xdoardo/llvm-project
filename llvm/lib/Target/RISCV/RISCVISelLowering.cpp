@@ -7961,6 +7961,8 @@ SDValue RISCVTargetLowering::LowerOperation(SDValue Op,
     return lowerFRAMEADDR(Op, DAG);
   case ISD::RETURNADDR:
     return lowerRETURNADDR(Op, DAG);
+  case ISD::ADDROFRETURNADDR:
+    return lowerADDROFRETURNADDR(Op, DAG);
   case ISD::SHL_PARTS:
     return lowerShiftLeftParts(Op, DAG);
   case ISD::SRA_PARTS:
@@ -10607,6 +10609,22 @@ SDValue RISCVTargetLowering::lowerRETURNADDR(SDValue Op,
   Register Reg =
       MF.addLiveIn(RI.getRARegister(), getRegClassFor(VT.getSimpleVT()));
   return DAG.getCopyFromReg(DAG.getEntryNode(), DL, Reg, VT);
+}
+
+SDValue RISCVTargetLowering::lowerADDROFRETURNADDR(SDValue Op,
+                                                   SelectionDAG &DAG) const {
+  MachineFunction &MF = DAG.getMachineFunction();
+  MachineFrameInfo &MFI = MF.getFrameInfo();
+  MFI.setReturnAddressIsTaken(true);
+  int XLenInBytes = Subtarget.getXLen() / 8;
+
+  SDLoc DL(Op);
+  EVT VT = Op.getValueType();
+  int Off = -XLenInBytes;
+  EVT OffVT = VT.isFatPointer() ? getPointerRangeTy(DAG.getDataLayout()) : VT;
+  SDValue FrameAddr = lowerFRAMEADDR(Op, DAG);
+  return DAG.getMemBasePlusOffset(FrameAddr,
+                                  DAG.getSignedConstant(Off, DL, OffVT), DL);
 }
 
 SDValue RISCVTargetLowering::lowerShiftLeftParts(SDValue Op,
